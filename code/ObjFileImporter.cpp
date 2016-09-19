@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ObjFileImporter.h"
 #include "ObjFileParser.h"
 #include "ObjFileData.h"
+#include "StdTextStream.h"
+
 #include <memory>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -115,7 +117,14 @@ const aiImporterDesc* ObjFileImporter::GetInfo () const
 void ObjFileImporter::InternReadFile( const std::string &file, aiScene* pScene, IOSystem* pIOHandler) {
     // Read file into memory
     static const std::string mode = "rb";
-    std::unique_ptr<IOStream> fileStream( pIOHandler->Open( file, mode));
+
+    StdTextStream fileStream( file );
+    size_t filesize( fileStream.FileSize() );
+    if ( filesize < ObjMinSize ) {
+        throw DeadlyImportError( "OBJ-file is too small." );
+    }
+
+    /*std::unique_ptr<IOStream> fileStream( pIOHandler->Open( file, mode));
     if( !fileStream.get() ) {
         throw DeadlyImportError( "Failed to open file " + file + "." );
     }
@@ -127,8 +136,8 @@ void ObjFileImporter::InternReadFile( const std::string &file, aiScene* pScene, 
     }
 
     // Allocate buffer and read file into it
-    TextFileToBuffer( fileStream.get(),m_Buffer);
-
+    TextFileToBuffer( fileStream.get(),m_Buffer);*/
+    
     // Get the model name
     std::string  modelName, folderName;
     std::string::size_type pos = file.find_last_of( "\\/" );
@@ -175,7 +184,7 @@ void ObjFileImporter::InternReadFile( const std::string &file, aiScene* pScene, 
     m_progress->UpdateFileRead(1, 3);
 
     // parse the file into a temporary representation
-    ObjFileParser parser(m_Buffer, modelName, pIOHandler, m_progress, file);
+    ObjFileParser parser( fileStream, modelName, pIOHandler, m_progress, file);
 
     // And create the proper return structures out of it
     CreateDataFromImport(parser.GetModel(), pScene);

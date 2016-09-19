@@ -171,6 +171,8 @@ SET( Common_SRCS
   Bitmap.h
   XMLTools.h
   Version.cpp
+  StdTextStream.h
+  StdTextStream.cpp
 )
 SOURCE_GROUP(Common FILES ${Common_SRCS})
 
@@ -750,7 +752,7 @@ SET( assimp_src
 
   ${PUBLIC_HEADERS}
   ${COMPILER_HEADERS}
-
+  ../README.md
 )
 ADD_DEFINITIONS( -DOPENDDLPARSER_BUILD )
 

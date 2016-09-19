@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/vector3.h>
 #include <assimp/mesh.h>
 
+#include "StdTextStream.h"
+
 namespace Assimp {
 
 namespace ObjFile {
@@ -72,7 +74,7 @@ public:
 
 public:
     /// \brief  Constructor with data array.
-    ObjFileParser(std::vector<char> &Data, const std::string &strModelName, IOSystem* io, ProgressHandler* progress, const std::string &originalObjFileName);
+    ObjFileParser( StdTextStream &inStream, const std::string &strModelName, IOSystem* io, ProgressHandler* progress, const std::string &originalObjFileName);
     /// \brief  Destructor
     ~ObjFileParser();
     /// \brief  Model getter.
@@ -82,47 +84,48 @@ private:
     /// Parse the loaded file
     void parseFile();
     /// Method to copy the new delimited word in the current line.
-    void copyNextWord(char *pBuffer, size_t length);
+    //void copyNextWord(char *pBuffer, size_t length);
+    //char *getNextWord( char *buffer, size_t len );
     /// Method to copy the new line.
     void copyNextLine(char *pBuffer, size_t length);
     /// Stores the vector
-    void getVector( std::vector<aiVector3D> &point3d_array );
+    void getVector( char *line, std::vector<aiVector3D> &point3d_array );
     /// Stores the following 3d vector.
-    void getVector3( std::vector<aiVector3D> &point3d_array );
+    void getVector3( char *line, std::vector<aiVector3D> &point3d_array );
     /// Stores the following two 3d vectors on the line.
-    void getTwoVectors3( std::vector<aiVector3D> &point3d_array_a, std::vector<aiVector3D> &point3d_array_b );
+    void getTwoVectors3( char *line, std::vector<aiVector3D> &point3d_array_a, std::vector<aiVector3D> &point3d_array_b );
     /// Stores the following 3d vector.
-    void getVector2(std::vector<aiVector2D> &point2d_array);
+    void getVector2( char *line, std::vector<aiVector2D> &point2d_array);
     /// Stores the following face.
-    void getFace(aiPrimitiveType type);
+    void getFace( char *line, aiPrimitiveType type);
     /// Reads the material description.
-    void getMaterialDesc();
+    void getMaterialDesc( char *line );
     /// Gets a comment.
-    void getComment();
+    //void getComment( char *line );
     /// Gets a a material library.
-    void getMaterialLib();
+    void getMaterialLib( char *line );
     /// Creates a new material.
-    void getNewMaterial();
+    void getNewMaterial( char *line );
     /// Gets the group name from file.
-    void getGroupName();
+    void getGroupName( char *line );
     /// Gets the group number from file.
-    void getGroupNumber();
+    void getGroupNumber( char *line );
     /// Gets the group number and resolution from file.
     void getGroupNumberAndResolution();
     /// Returns the index of the material. Is -1 if not material was found.
-    int getMaterialIndex( const std::string &strMaterialName );
+    int getMaterialIndex( const std::string &materialName );
     /// Parse object name
-    void getObjectName();
+    void getObjectName( char *pBuffer );
     /// Creates a new object.
-    void createObject( const std::string &strObjectName );
+    void createObject( const std::string &objectName );
     /// Creates a new mesh.
     void createMesh( const std::string &meshName );
     /// Returns true, if a new mesh instance must be created.
-    bool needsNewMesh( const std::string &rMaterialName );
+    bool needsNewMesh( const std::string &materialName );
     /// Error report in token
     void reportErrorTokenInFace();
     /// Get the number of components in a line.
-    size_t getNumComponentsInLine();
+    //size_t getNumComponentsInLine();
 
 private:
     // Copy and assignment constructor should be private
@@ -133,9 +136,10 @@ private:
     /// Default material name
     static const std::string DEFAULT_MATERIAL;
     //! Iterator to current position in buffer
-    DataArrayIt m_DataIt;
+    //DataArrayIt m_DataIt;
     //! Iterator to end position of buffer
-    DataArrayIt m_DataItEnd;
+    //DataArrayIt m_DataItEnd;
+    StdTextStream& m_inStream;
     //! Pointer to model instance
     ObjFile::Model *m_pModel;
     //! Current line (for debugging)
@@ -149,6 +153,9 @@ private:
     /// Path to the current model
     // name of the obj file where the buffer comes from
     const std::string& m_originalObjFileName;
+
+    std::string m_currentLine;
+    char *m_end;
 };
 
 }   // Namespace Assimp
